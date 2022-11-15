@@ -1,0 +1,149 @@
+﻿@page "/addvideo"
+@inject Vservice Vservice
+
+
+
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Video</PageTitle>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+<DataAnnotationsValidator/>
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudCard>
+            <MudCardContent>
+                <MudTextField Label="Video name" 
+                              @bind-Value="model.Vname" For="@(() => model.Vname)"/>
+               <MudTextField Label="Video Descreption" Class="mt-3"
+                                  @bind-Value="model.Vdes" For="@(() => model.Vdes)" />
+               
+
+
+              
+                              
+            </MudCardContent>
+
+            <MudCardActions>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Register</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="5">
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.subtitle2">Validation Summary</MudText>
+            @if (success)
+            {
+                <MudText Color="Color.Success">Success</MudText>
+            }
+            else
+            {
+                <MudText Color="@Color.Error">
+                    <ValidationSummary />
+                </MudText>
+            }
+        </MudPaper>
+    </MudItem>
+   
+</MudGrid>
+</EditForm>
+
+<MudGrid Justify="Justify.Center" class="pr-4 pl-4">
+    <MudItem xs="12">
+        <MudText Typo="Typo.h6" Align="Align.Center">
+          Registerd Videos
+        </MudText>
+    </MudItem>
+   
+
+</MudGrid>
+
+<MudTable Items="@allVideos" Hover="true">
+    <ColGroup>
+        <col style="width: 60px;" />
+        <col />
+        <col />
+        <col />
+        <col style="width: 60px;" />
+    </ColGroup>
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Video Name</MudTh>
+        <MudTh>Description</MudTh>
+       
+
+    </HeaderContent>
+
+
+    <RowTemplate>
+        <MudTd>@context.VideoId</MudTd>
+        <MudTd>@context.Vname</MudTd>
+        <MudTd>@context.Vdes</MudTd>
+       
+        <MudTd>
+            <MudIconButton Icon="@Icons.Filled.Delete" Color="Color.Error" OnClick="(()=>DeleteVideo(context.VideoId))" />
+
+        </MudTd>
+    </RowTemplate>
+
+</MudTable>
+
+
+
+
+
+
+
+@code {
+    List<Data.Video> allVideos = new List<Data.Video>();
+    protected override async Task OnInitializedAsync()
+    {
+        allVideos = await Vservice.GetAllVideos();
+    }
+
+
+    RegisterAccountForm model = new RegisterAccountForm();
+    bool success;
+
+    public class RegisterAccountForm
+    {
+        [Required]
+        public string Vname { get; set; }
+
+        [Required]
+        public string Vdes { get; set; }
+
+
+
+
+
+    }
+
+    private void OnValidSubmit(EditContext context)
+    {
+        Data.Video newV = new Data.Video();
+
+        newV.Vname = model.Vname;
+        newV.Vdes = model.Vdes;
+
+
+        bool res = Vservice.InsertVideo(newV);
+        success = true;
+        StateHasChanged();
+        OnInitializedAsync();
+
+    }
+
+    private void DeleteVideo(int vid)
+    {
+        bool res = Vservice.DeleteVideo(vid);
+
+        if (res)
+        {
+            OnInitializedAsync();
+        }
+
+    }
+    
+}
+

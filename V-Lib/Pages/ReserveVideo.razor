@@ -1,0 +1,160 @@
+﻿@page "/reserve"
+
+@using System.ComponentModel.DataAnnotations
+@inject Vservice Vservice
+
+<PageTitle>Borrow Video</PageTitle>
+
+
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="Member ID"
+                                  @bind-Value="model.MID" For="@(() => model.MID)" />
+
+                    <MudTextField Label="Video ID"
+                                  @bind-Value="model.VID" For="@(() => model.VID)" />
+
+                    <MudDatePicker Label="MM/dd/yyyy" Editable="true" @bind-Date="model.fromdate"  Placeholder="From" />
+
+
+                    <MudDatePicker Label="MM/dd/yyyy" Editable="true" @bind-Date="model.todate"  Placeholder="To" />
+
+
+
+                </MudCardContent>
+
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Reserve</MudButton>
+
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="5">
+            <MudPaper Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.subtitle2">Validation Summary</MudText>
+                @if (success)
+                {
+                    <MudText Color="Color.Success">Success</MudText>
+                }
+                else
+                {
+                    <MudText Color="@Color.Error">
+                        <ValidationSummary />
+                    </MudText>
+                }
+            </MudPaper>
+        </MudItem>
+
+    </MudGrid>
+</EditForm>
+
+<MudGrid Justify="Justify.Center" class="pr-4 pl-4">
+    @if (err)
+    {
+        <MudAlert Severity="Severity.Error">Record not entered.Error!</MudAlert>
+    }
+
+    <MudItem xs="12">
+        <MudText Typo="Typo.h6" Align="Align.Center">
+            Reserved Videos
+        </MudText>
+    </MudItem>
+    @foreach (var RV in allResV)
+    {
+        <MudItem xs="3">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+
+                        <MudText Typo="Typo.h6">Video ID:@RV.ResVid</MudText>
+                        <MudText Typo="Typo.h6">Member ID:@RV.ResMid</MudText>
+                        <MudText Typo="Typo.h6">From:@RV.ResFromDate</MudText>
+                        <MudText Typo="Typo.h6">To:@RV.ResToDate</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+
+                <MudCardActions>
+
+                    <MudIconButton Icon="@Icons.Filled.Delete" Color="Color.Error" OnClick="(()=>DeleteRV(RV.Rid))" />
+                </MudCardActions>
+            </MudCard>
+
+        </MudItem>
+
+    }
+
+</MudGrid>
+
+
+
+
+@code {
+
+
+    List<Data.ReserveVideo> allResV = new List<Data.ReserveVideo>();
+    protected override async Task OnInitializedAsync()
+    {
+        allResV = await Vservice.GetAllResVideos();
+    }
+
+    RegisterAccountForm model = new RegisterAccountForm();
+    bool success;
+
+    public class RegisterAccountForm
+    {
+        [Required]
+        public string MID { get; set; }
+
+        [Required]
+        public string VID { get; set; }
+
+        public DateTime? fromdate { get; set; }
+
+        public DateTime? todate { get; set; }
+
+
+
+    }
+    bool err;
+    private void OnValidSubmit(EditContext context)
+    {
+        if (!Vservice.isReserved(int.Parse(model.VID)))
+
+        {
+            Data.ReserveVideo rv = new Data.ReserveVideo();
+            rv.ResVid = int.Parse(model.VID);
+            rv.ResMid = int.Parse(model.MID);
+            rv.ResFromDate = model.fromdate;
+            rv.ResToDate = model.todate;
+
+            success = Vservice.InsertReserve(rv);
+            StateHasChanged();
+            OnInitializedAsync();
+        }
+        else
+        {
+            err = true;
+        }
+    }
+
+
+
+
+    private void DeleteRV(int rvid)
+    {
+        bool res = Vservice.DeleteRV(rvid);
+
+        if (res)
+        {
+            OnInitializedAsync();
+        }
+
+    }
+
+}
+

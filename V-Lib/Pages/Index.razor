@@ -1,0 +1,146 @@
+﻿@page "/"
+
+@using System.ComponentModel.DataAnnotations
+@inject Vservice Vservice
+
+<PageTitle>Borrow Video</PageTitle>
+
+
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+<DataAnnotationsValidator/>
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudCard>
+            <MudCardContent>
+                <MudTextField Label="Member ID" 
+                              @bind-Value="model.MID" For="@(() => model.MID)"/>
+
+                <MudTextField Label="Video ID" 
+                              @bind-Value="model.VID" For="@(() => model.VID)"/>
+               
+               
+                              
+            </MudCardContent>
+
+            <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" >Check Out</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="5">
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.subtitle2">Validation Summary</MudText>
+            @if (success)
+            {
+                <MudText Color="Color.Success">Success</MudText>
+            }
+            else
+            {
+                <MudText Color="@Color.Error">
+                    <ValidationSummary />
+                </MudText>
+            }
+        </MudPaper>
+    </MudItem>
+    
+</MudGrid>
+</EditForm>
+
+
+<MudGrid Justify="Justify.Center" class="pr-4 pl-4">
+    @if (err)
+    {
+        <MudAlert Severity="Severity.Error">Record not entered.Error!</MudAlert>
+    }
+    
+    <MudItem xs="12">
+        <MudText Typo="Typo.h6" Align="Align.Center">
+           Borrowed Videos
+        </MudText>
+    </MudItem>
+    @foreach (var video in borrowedVideos)
+    {
+        <MudItem xs="3">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.body1">@video.Vname</MudText>
+                        <MudText Typo="Typo.h6">@video.Vdes</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+
+                <MudCardActions>
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="(()=>CheckedIN(video.VideoId))">Check In</MudButton>
+                    
+                </MudCardActions>
+            </MudCard>
+
+        </MudItem>
+
+    }
+
+</MudGrid>
+
+
+
+
+
+@code {
+
+    List<Data.Video> borrowedVideos = new List<Data.Video>();
+    protected override async Task OnInitializedAsync()
+    {
+        borrowedVideos = await Vservice.GetBorrowedVideos();
+    }
+
+    RegisterAccountForm model = new RegisterAccountForm();
+    bool success;
+
+    public class RegisterAccountForm
+    {
+        [Required]
+        public string MID { get; set; }
+
+        [Required]
+        public string VID { get; set; }
+
+
+
+
+
+    }
+    bool err;
+    private void OnValidSubmit(EditContext context)
+    {
+        if (!Vservice.isBorrowed(int.Parse(model.VID)))
+        {
+            success = Vservice.BorrowVideo(int.Parse(model.VID), int.Parse(model.MID));
+            StateHasChanged();
+            OnInitializedAsync();
+        }
+        else
+        {
+            err = true;
+        }
+
+
+    }
+
+    private void CheckedIN(int vid)
+    {
+        bool res= Vservice.CheckedIn(vid);
+
+        if (res)
+        {
+            OnInitializedAsync();
+        }
+
+    }
+
+
+
+    
+    
+}
+

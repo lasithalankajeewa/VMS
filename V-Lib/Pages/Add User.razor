@@ -1,0 +1,183 @@
+﻿@page "/adduser"
+@inject Vservice Vservice
+
+
+
+<PageTitle>Member</PageTitle>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+<DataAnnotationsValidator/>
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudCard>
+            <MudCardContent>
+              
+               <MudTextField Label="First name" 
+                              @bind-Value="model.Fname" For="@(() => model.Fname)"/>
+               <MudTextField Label="Last name" Class="mt-3"
+                              @bind-Value="model.Lname" For="@(() => model.Lname)"/>
+               <MudTextField Label="Tel No" Class="mt-3"
+                              @bind-Value="model.Tel" For="@(() => model.Tel)"/>
+
+
+              
+                              
+                </MudCardContent>
+
+            <MudCardActions>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Register</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="5">
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.subtitle2">Validation Summary</MudText>
+            @if (success)
+            {
+                <MudText Color="Color.Success">Success</MudText>
+            }
+            else
+            {
+                <MudText Color="@Color.Error">
+                    <ValidationSummary />
+                </MudText>
+            }
+        </MudPaper>
+    </MudItem>
+    
+</MudGrid>
+</EditForm>
+
+<MudGrid Justify="Justify.Center" class="pr-4 pl-4">
+   
+    <MudItem xs="12">
+        <MudText Typo="Typo.h6" Align="Align.Center">
+            Registerd Members
+        </MudText>
+    </MudItem>
+   
+
+</MudGrid>
+
+<MudTable Items="@allMember" Hover="true"  >
+    <ColGroup>
+        <col style="width: 60px;" />
+        <col />
+        <col />
+        <col />
+        <col style="width: 60px;"/>
+    </ColGroup>
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>First Name</MudTh>
+        <MudTh>Last Name</MudTh>
+        <MudTh>Tel</MudTh>
+        
+    </HeaderContent>
+    
+
+    <RowTemplate>
+        <MudTd>@context.Id</MudTd>
+        <MudTd>@context.Fname</MudTd>
+        <MudTd>@context.Lname</MudTd>
+        <MudTd>@context.Tel</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Filled.Delete" Color="Color.Error" OnClick="(()=>DeleteMember(context.Id))" />
+
+        </MudTd>
+    </RowTemplate>
+
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[]{10, 25, 100}" />
+    </PagerContent>
+
+</MudTable>
+
+
+
+
+
+
+
+
+
+
+
+
+@code {
+
+    private string searchString1 = "";
+
+    List<Data.Member> allMember = new List<Data.Member>();
+    protected override async Task OnInitializedAsync()
+    {
+        allMember = await Vservice.GetAllMembers();
+    }
+
+
+
+    RegisterAccountForm model = new RegisterAccountForm();
+    bool success;
+
+    public class RegisterAccountForm
+    {
+        [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
+
+        [Required]
+        public string Fname { get; set; }
+
+        [Required]
+        public string Lname { get; set; }
+
+        [Required]
+        [Phone]
+        public string Tel { get; set; }
+
+
+
+    }
+
+    private async void OnValidSubmit(EditContext context)
+    {
+
+
+
+        Data.Member m = new Data.Member();
+
+        m.Fname = model.Fname;
+        m.Lname = model.Lname;
+        m.Tel = model.Tel;
+
+        
+        bool res = Vservice.InsertUser(m);
+        success = res;
+        StateHasChanged();
+        OnInitializedAsync();
+
+
+    }
+
+    private void DeleteMember(int mid)
+    {
+        bool res = Vservice.DeleteMember(mid);
+
+        if (res)
+        {
+            OnInitializedAsync();
+        }
+
+    }
+
+    
+
+    
+    
+}
+
+c
