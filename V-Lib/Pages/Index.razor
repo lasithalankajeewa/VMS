@@ -51,7 +51,7 @@
 <MudGrid Justify="Justify.Center" class="pr-4 pl-4">
     @if (err)
     {
-        <MudAlert Severity="Severity.Error">Record not entered.Error!</MudAlert>
+        <MudAlert Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="(() => CloseMe())">Record not entered.Error!</MudAlert>
     }
     
     <MudItem xs="12">
@@ -64,9 +64,13 @@
         <MudItem xs="3">
             <MudCard>
                 <MudCardHeader>
+                    <CardHeaderAvatar>
+                        <MudAvatar Color="Color.Warning">V</MudAvatar>
+                    </CardHeaderAvatar>
                     <CardHeaderContent>
+                       
                         <MudText Typo="Typo.body1">@video.Vname</MudText>
-                        <MudText Typo="Typo.h6">@video.Vdes</MudText>
+                        <MudText Typo="Typo.body2">@video.Vdes</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
 
@@ -136,6 +140,11 @@
             OnInitializedAsync();
         }
 
+    }
+
+    private void CloseMe()
+    {
+        err = false;
     }
 
 

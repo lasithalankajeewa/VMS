@@ -56,7 +56,7 @@
 <MudGrid Justify="Justify.Center" class="pr-4 pl-4">
     @if (err)
     {
-        <MudAlert Severity="Severity.Error">Record not entered.Error!</MudAlert>
+        <MudAlert Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="(() => CloseMe())">Record not entered.Error!</MudAlert>
     }
 
     <MudItem xs="12">
@@ -66,15 +66,22 @@
     </MudItem>
     @foreach (var RV in allResV)
     {
+        string? s1 = @RV.ResFromDate.ToString();
+        string[]? s2 = s1.Split(' ');
+        string? s3 = @RV.ResToDate.ToString();
+        string[]? s4 = s3.Split(' ');
         <MudItem xs="3">
             <MudCard>
                 <MudCardHeader>
+                    <CardHeaderAvatar>
+                        <MudAvatar Color="Color.Success">R</MudAvatar>
+                    </CardHeaderAvatar>
+                    
                     <CardHeaderContent>
-
-                        <MudText Typo="Typo.h6">Video ID:@RV.ResVid</MudText>
-                        <MudText Typo="Typo.h6">Member ID:@RV.ResMid</MudText>
-                        <MudText Typo="Typo.h6">From:@RV.ResFromDate</MudText>
-                        <MudText Typo="Typo.h6">To:@RV.ResToDate</MudText>
+                        <MudText Typo="Typo.body1">Video ID:@RV.ResVid</MudText>
+                        <MudText Typo="Typo.body1">Member ID:@RV.ResMid</MudText>
+                        <MudText Typo="Typo.body2">From:@s2[0]</MudText>
+                        <MudText Typo="Typo.body2">To:@s4[0]</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
 
@@ -154,6 +161,11 @@
             OnInitializedAsync();
         }
 
+    }
+
+    private void CloseMe()
+    {
+        err = false;
     }
 
 }

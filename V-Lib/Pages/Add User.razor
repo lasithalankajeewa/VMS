@@ -48,18 +48,7 @@
 </MudGrid>
 </EditForm>
 
-<MudGrid Justify="Justify.Center" class="pr-4 pl-4">
-   
-    <MudItem xs="12">
-        <MudText Typo="Typo.h6" Align="Align.Center">
-            Registerd Members
-        </MudText>
-    </MudItem>
-   
-
-</MudGrid>
-
-<MudTable Items="@allMember" Hover="true"  >
+<MudTable Items="@allMember" Hover="true" Filter="new Func<Data.Member, bool>(FilterCycleCheck)">
     <ColGroup>
         <col style="width: 60px;" />
         <col />
@@ -68,7 +57,7 @@
         <col style="width: 60px;"/>
     </ColGroup>
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+        <MudText Typo="Typo.h6">Registerd Members</MudText>
         <MudSpacer />
         <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
@@ -175,8 +164,31 @@
     }
 
     
+    private bool FilterCycleCheck(Data.Member m)
+    {
+        if (m.Id.ToString().Contains(searchString1))
+        {
+            return true;
+        }
+        else if (m.Fname.Contains(searchString1))
+        {
+            return true;
+        }
+        else if (m.Lname.Contains(searchString1))
+        {
+            return true;
+        }
+        else if (m.Tel.Contains(searchString1))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
 
-    
+        }
+    }
+  
     
 }
 

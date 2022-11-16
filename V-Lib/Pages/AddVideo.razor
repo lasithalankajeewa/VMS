@@ -48,17 +48,9 @@
 </MudGrid>
 </EditForm>
 
-<MudGrid Justify="Justify.Center" class="pr-4 pl-4">
-    <MudItem xs="12">
-        <MudText Typo="Typo.h6" Align="Align.Center">
-          Registerd Videos
-        </MudText>
-    </MudItem>
-   
 
-</MudGrid>
 
-<MudTable Items="@allVideos" Hover="true">
+<MudTable Items="@allVideos" Hover="true" Filter="new Func<Data.Video, bool>(FilterCycleCheck)">
     <ColGroup>
         <col style="width: 60px;" />
         <col />
@@ -66,6 +58,11 @@
         <col />
         <col style="width: 60px;" />
     </ColGroup>
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Registerd Videos</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
     <HeaderContent>
         <MudTh>ID</MudTh>
         <MudTh>Video Name</MudTh>
@@ -101,6 +98,7 @@
         allVideos = await Vservice.GetAllVideos();
     }
 
+    private string searchString1 = "";
 
     RegisterAccountForm model = new RegisterAccountForm();
     bool success;
@@ -143,6 +141,28 @@
             OnInitializedAsync();
         }
 
+    }
+
+    private bool FilterCycleCheck(Data.Video m)
+    {
+        if (m.VideoId.ToString().Contains(searchString1))
+        {
+            return true;
+        }
+        else if (m.Vname.Contains(searchString1))
+        {
+            return true;
+        }
+        else if (m.Vdes.Contains(searchString1))
+        {
+            return true;
+        }
+        
+        else
+        {
+            return false;
+
+        }
     }
     
 }
